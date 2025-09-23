@@ -1,12 +1,12 @@
- import hashlib
- import json
- import time
- import uuid
- from typing import List, Dict, Any, Optional
- import streamlit as st
- # ------------------------
+import hashlib
+import json
+import time
+import uuid
+from typing import List, Dict, Any, Optional
+import streamlit as st
+# ------------------------
 # Blockchain for Loan Tracking
- 1
+1
 # ------------------------
 class Blockchain:
  def __init__(self, difficulty: int = 4): # Constructor
@@ -155,4 +155,4 @@ key="balance_input")
  else:
  st.error("Uploaded JSON must be a list of blocks.")
  except Exception as e:
- st.error(f"Failed to load JSON: {e}")
+ st.error(f"Failed to load JSON: {e}"
