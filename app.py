@@ -4,7 +4,6 @@ import json
 import time
 from typing import List, Dict, Any
 
-
 # -----------------------
 # Blockchain Class
 # -----------------------
@@ -109,29 +108,42 @@ with st.form("tx_form", clear_on_submit=True):
 
 # --- Tamper Block ---
 st.header("⚠️ Tamper with a Block")
-tamper_index = st.number_input("Select Block to Tamper (except Genesis)", min_value=2, max_value=len(bc.chain), step=1)
-new_sender = st.text_input("New Sender")
-new_recipient = st.text_input("New Recipient")
-new_amount = st.number_input("New Amount", min_value=0.0, step=0.01)
-colA, colB = st.columns(2)
+if len(bc.chain) > 1:
+    tamper_index = st.number_input(
+        "Select Block to Tamper (except Genesis)",
+        min_value=2,
+        max_value=len(bc.chain),
+        step=1
+    )
+    new_sender = st.text_input("New Sender")
+    new_recipient = st.text_input("New Recipient")
+    new_amount = st.number_input("New Amount", min_value=0.0, step=0.01)
+    colA, colB = st.columns(2)
 
-if colA.button("💥 Tamper Only"):
-    if bc.tamper_block(tamper_index, new_sender, new_recipient, new_amount):
-        st.error(f"Tampered Block {tamper_index}! (Hash NOT updated)")
-    else:
-        st.warning("Invalid block selected.")
+    if colA.button("💥 Tamper Only"):
+        if bc.tamper_block(tamper_index, new_sender, new_recipient, new_amount):
+            st.error(f"Tampered Block {tamper_index}! (Hash NOT updated)")
+        else:
+            st.warning("Invalid block selected.")
 
-if colB.button("♻️ Tamper & Recompute Hash"):
-    if bc.tamper_block(tamper_index, new_sender, new_recipient, new_amount):
-        bc.recompute_hash(tamper_index)
-        st.error(f"Block {tamper_index} tampered & hash recomputed. Chain may still break!")
-    else:
-        st.warning("Invalid block selected.")
+    if colB.button("♻️ Tamper & Recompute Hash"):
+        if bc.tamper_block(tamper_index, new_sender, new_recipient, new_amount):
+            bc.recompute_hash(tamper_index)
+            st.error(f"Block {tamper_index} tampered & hash recomputed. Chain may still break!")
+        else:
+            st.warning("Invalid block selected.")
+else:
+    st.info("No blocks available for tampering yet (Genesis only).")
 
 # --- Explorer ---
 st.header("🔎 Blockchain Explorer")
-for block in reversed(bc.chain):
-    with st.expander(f"Block {block['index']}"):
-        st.write("Previous Hash:", block["previous_hash"])
-        st.write("Hash:", block["hash"])
-        st.json(block["transactions"])
+
+if len(bc.chain) == 0:
+    st.info("Blockchain is empty.")
+else:
+    for block in reversed(bc.chain):
+        index = block.get("index", "N/A")
+        with st.expander(f"Block {index}"):
+            st.write("Previous Hash:", block.get("previous_hash", "N/A"))
+            st.write("Hash:", block.get("hash", "N/A"))
+            st.json(block.get("transactions", []))
